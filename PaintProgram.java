@@ -18,7 +18,7 @@ public class PaintProgram extends JPanel implements MouseMotionListener, ActionL
     JPanel penWidthPanel;
     JMenuBar menu;
     JMenu colorMenu;
-    JMenuItem white, red, blue, green, yellow, orange, magenta, pink, cyan, gray, black;
+    Color[] colors = new Color[] {Color.WHITE, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.ORANGE, Color.MAGENTA, Color.PINK, Color.CYAN, Color.GRAY, Color.BLACK};
     JButton freeDraw, rectangleTool, ovalTool, lineTool, undo, redo;
     JScrollBar penWidthBar;
     JLabel penWidthLabel;
@@ -47,50 +47,18 @@ public class PaintProgram extends JPanel implements MouseMotionListener, ActionL
 
         menu = new JMenuBar();
         colorMenu = new JMenu("Pen Colors");
-        white = new JMenuItem();
-        white.setBackground(Color.WHITE);
-        colorMenu.add(white);
-        white.addActionListener(this);
-        red = new JMenuItem();
-        red.setBackground(Color.RED);
-        colorMenu.add(red);
-        red.addActionListener(this);
-        blue = new JMenuItem();
-        blue.setBackground(Color.BLUE);
-        colorMenu.add(blue);
-        blue.addActionListener(this);
-        green = new JMenuItem();
-        green.setBackground(Color.GREEN);
-        colorMenu.add(green);
-        green.addActionListener(this);
-        yellow = new JMenuItem();
-        yellow.setBackground(Color.YELLOW);
-        colorMenu.add(yellow);
-        yellow.addActionListener(this);
-        orange = new JMenuItem();
-        orange.setBackground(Color.ORANGE);
-        colorMenu.add(orange);
-        orange.addActionListener(this);
-        magenta = new JMenuItem();
-        magenta.setBackground(Color.MAGENTA);
-        colorMenu.add(magenta);
-        magenta.addActionListener(this);
-        pink = new JMenuItem();
-        pink.setBackground(Color.PINK);
-        colorMenu.add(pink);
-        pink.addActionListener(this);
-        cyan = new JMenuItem();
-        cyan.setBackground(Color.CYAN);
-        colorMenu.add(cyan);
-        cyan.addActionListener(this);
-        gray = new JMenuItem();
-        gray.setBackground(Color.GRAY);
-        colorMenu.add(gray);
-        gray.addActionListener(this);
-        black = new JMenuItem();
-        black.setBackground(Color.BLACK);
-        colorMenu.add(black);
-        black.addActionListener(this);
+
+        for(int i=0; i<colors.length; i++){
+            JMenuItem c = new JMenuItem();
+            c.setBackground(colors[i]);
+            colorMenu.add(c);
+            final int j = i;
+            c.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e){
+                    currentColor = colors[j];
+                }
+            });
+        }
 
         colorChooser = new JColorChooser();
         colorChooser.getSelectionModel().addChangeListener(this);
@@ -222,39 +190,6 @@ public class PaintProgram extends JPanel implements MouseMotionListener, ActionL
     }
 
     public void actionPerformed(ActionEvent e){
-        if(e.getSource()==white){
-            currentColor = Color.WHITE;
-        }
-        if(e.getSource()==red){
-            currentColor = Color.RED;
-        }
-        if(e.getSource()==blue){
-            currentColor = Color.BLUE;
-        }
-        if(e.getSource()==green){
-            currentColor = Color.GREEN;
-        }
-        if(e.getSource()==yellow){
-            currentColor = Color.YELLOW;
-        }
-        if(e.getSource()==orange){
-            currentColor = Color.ORANGE;
-        }
-        if(e.getSource()==magenta){
-            currentColor = Color.MAGENTA;
-        }
-        if(e.getSource()==pink){
-            currentColor = Color.PINK;
-        }
-        if(e.getSource()==cyan){
-            currentColor = Color.CYAN;
-        }
-        if(e.getSource()==gray){
-            currentColor = Color.GRAY;
-        }
-        if(e.getSource()==black){
-            currentColor = Color.BLACK;
-        }
         if(e.getSource()==freeDraw){
             mode = "free";
         }
