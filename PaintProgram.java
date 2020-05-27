@@ -2,9 +2,15 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.awt.*;
 import java.awt.geom.*;
+import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.util.Stack;
+import java.io.*;
+import javax.imageio.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 
 public class PaintProgram extends JPanel implements MouseMotionListener, ActionListener, MouseListener, AdjustmentListener, ChangeListener, KeyListener{
     private FreeLine currentFreeLine;
@@ -17,7 +23,10 @@ public class PaintProgram extends JPanel implements MouseMotionListener, ActionL
     JFrame frame;
     JPanel penWidthPanel;
     JMenuBar menu;
-    JMenu colorMenu;
+    JMenu colorMenu, file;
+    JMenuItem save, load;
+    JFileChooser fileChooser;
+    BufferedImage loadedImage;
     Color[] colors = new Color[] {Color.WHITE, Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.ORANGE, Color.MAGENTA, Color.PINK, Color.CYAN, Color.GRAY, Color.BLACK};
     JButton freeDraw, rectangleTool, ovalTool, lineTool, undo, redo;
     JScrollBar penWidthBar;
@@ -46,6 +55,19 @@ public class PaintProgram extends JPanel implements MouseMotionListener, ActionL
         mode = "free";
 
         menu = new JMenuBar();
+
+        file = new JMenu("File");
+
+        save = new JMenuItem("Save");
+        save.addActionListener(this);
+        file.add(save);
+
+        load = new JMenuItem("Load");
+        load.addActionListener(this);
+        file.add(load);
+
+        menu.add(file);
+
         colorMenu = new JMenu("Pen Colors");
 
         for(int i=0; i<colors.length; i++){
@@ -104,6 +126,9 @@ public class PaintProgram extends JPanel implements MouseMotionListener, ActionL
         menu.add(penWidthPanel);
 
         frame.add(menu, BorderLayout.NORTH);
+
+        String currentDir = System.getProperty("user.dir");
+        fileChooser = new JFileChooser(currentDir);
         
         frame.setVisible(true);
     }
@@ -218,6 +243,28 @@ public class PaintProgram extends JPanel implements MouseMotionListener, ActionL
                 repaint();
             }
         }
+        if(e.getSource()==save){
+            FileFilter filter = new FileNameExtensionFilter("*.png", "png");
+            fileChooser.setFileFilter(filter);
+            if(fileChooser.showSaveDialog(null)==JFileChooser.APPROVE_OPTION){
+                File file = fileChooser.getSelectedFile();
+                try{
+                    ImageIO.write(createImage(),"png",new File(file.getAbsolutePath()+".png"));
+                }catch(IOException exc){
+                }
+            }
+        }
+        if(e.getSource()==load){
+            fileChooser.showOpenDialog(null);
+            File imgFile = fileChooser.getSelectedFile();
+            try{
+                loadedImage=ImageIO.read(imgFile);
+            }catch(IOException exc){}
+            shapes = new ArrayList<Shape>();
+            strokes = new Stack<Shape>();
+            undid = new Stack<Shape>();
+            repaint();
+        }
     }
 
     public void adjustmentValueChanged(AdjustmentEvent e){
@@ -259,12 +306,25 @@ public class PaintProgram extends JPanel implements MouseMotionListener, ActionL
         }
     }
 
+    public BufferedImage createImage(){
+        int width = this.getWidth();
+        int height = this.getHeight();
+        BufferedImage img = new BufferedImage(width, height,BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = img.createGraphics();
+        this.paint(g2);
+        g2.dispose();
+        return img;
+    }
+
     public void paintComponent(Graphics g){
         System.out.println(frame.getFocusOwner()+" "+this);
         super.paintComponent(g);
         Graphics2D g2=(Graphics2D)g;
         g2.setColor(Color.BLACK);
         g2.fill(new Rectangle(0, 0, frame.getWidth(), frame.getHeight()));
+        if(loadedImage!=null){
+            g2.drawImage(loadedImage, 0, 0, null);
+        }
         for(Shape s : shapes){
             g2.setColor(s.getColor());
             g2.setStroke(new BasicStroke(s.getPenWidth()));
